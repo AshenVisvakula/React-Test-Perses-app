@@ -1,0 +1,60 @@
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: loki-react-ingress
+#   annotations:
+#     nginx.ingress.kubernetes.io/rewrite-target: /
+#     nginx.ingress.kubernetes.io/configuration-snippet: |
+#       add_header X-Frame-Options "ALLOWALL" always;
+#       add_header Content-Security-Policy "frame-ancestors *" always;
+# spec:
+#   rules:
+#     - host: perses.example.com
+#       http:
+#         paths:
+#           # React UI
+#           - path: /
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: loki-react-service
+#                 port:
+#                   number: 80
+#           # API proxy
+#           - path: /api/loki
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: loki-react-service
+#                 port:
+#                   number: 8080
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: loki-react-ingress
+  namespace: perses
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header X-Frame-Options "" always;
+      add_header Content-Security-Policy "frame-ancestors *" always;
+      more_clear_headers "X-Frame-Options";
+      more_clear_headers "Content-Security-Policy";
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - perses.loki.com
+      secretName: tls-loki-react
+  rules:
+    - host: perses.loki.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: loki-react-service
+                port:
+                  number: 80

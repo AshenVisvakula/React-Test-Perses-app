@@ -1,0 +1,113 @@
+// Copyright The Perses Authors
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+import { Box, styled, IconButton, Typography } from "@mui/material";
+
+export const LogRowContainer = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "severityColor",
+})<{ severityColor?: string }>(({ severityColor }) => ({
+  borderLeft: `4px solid ${severityColor}`,
+  transition: "all 0.2s ease",
+  marginBottom: "4px",
+  fontFamily: '"DejaVu Sans Mono", monospace',
+  userSelect: "text",
+}));
+
+export const LogRowContent = styled(Box, {
+  shouldForwardProp: (prop) =>
+    prop !== "isExpandable" &&
+    prop !== "isHighlighted" &&
+    prop !== "isSelected",
+})<{ isExpandable: boolean; isHighlighted?: boolean; isSelected?: boolean }>(
+  ({ theme, isExpandable, isHighlighted, isSelected }) => ({
+    display: "grid",
+    gridTemplateColumns: isExpandable
+      ? "16px minmax(160px, max-content) 1fr"
+      : "minmax(160px, max-content) 1fr",
+    alignItems: "flex-start",
+    padding: "4px 8px",
+    cursor: "default",
+    gap: "12px",
+    backgroundColor: isHighlighted
+      ? theme.palette.action.hover
+      : isSelected
+        ? theme.palette.action.selected
+        : "transparent",
+    "&:hover": {
+      backgroundColor: isSelected
+        ? theme.palette.action.focus
+        : theme.palette.action.hover,
+    },
+  }),
+);
+
+export const ExpandButton = styled(IconButton, {
+  shouldForwardProp: (prop) => prop !== "isExpanded",
+})<{ isExpanded: boolean }>(({ theme, isExpanded }) => ({
+  padding: 0,
+  width: "16px",
+  height: "16px",
+  color: theme.palette.text.secondary,
+  transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)",
+  transition: "transform 0.2s ease",
+}));
+
+export const LogText = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== "allowWrap",
+})<{ allowWrap: boolean }>(({ allowWrap }) => ({
+  fontSize: "12px",
+  flex: 1,
+  lineHeight: 1.4,
+  textAlign: "left",
+  marginLeft: "8px",
+  ...(allowWrap
+    ? {
+        wordBreak: "break-word",
+        whiteSpace: "pre-wrap",
+        overflow: "visible",
+        //  color: "red",
+        textOverflow: "unset",
+      }
+    : {
+        wordBreak: "normal",
+        whiteSpace: "nowrap",
+      }),
+}));
+export const LogServiceName = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== "allowWrap",
+})<{ allowWrap: boolean; severityColor?: string }>(
+  ({ allowWrap, severityColor }) => ({
+    fontSize: "12px",
+    lineHeight: 1.4,
+    textAlign: "left",
+    alignSelf: "flex-start",
+    justifySelf: "flex-start",
+    top: 0,
+
+    marginLeft: "-25px",
+    ...(allowWrap
+      ? {
+          wordBreak: "break-word",
+          whiteSpace: "pre-wrap",
+          overflow: "visible",
+          textOverflow: "unset",
+          minWidth: 120,
+          color: `${severityColor}`,
+        }
+      : {
+          wordBreak: "normal",
+          whiteSpace: "nowrap",
+          color: `${severityColor}`,
+        }),
+  }),
+);

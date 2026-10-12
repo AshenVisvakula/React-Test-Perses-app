@@ -1,0 +1,67 @@
+# ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loki-proxy-config
+data:
+  LOKI_BASE_URL: "http://loki.loki.svc.cluster.local:3100"
+  LISTEN_ADDR: ":8080"
+  ROUTE_PREFIX: "/api/loki"
+  ENABLE_CORS: "true"
+  CORS_ALLOW_ORIGIN: "*"
+  LOKI_TENANT_ID: "tenant-a"
+  LOKI_AUTH_HEADER: "Bearer <token>"
+  GENERATE_SOURCEMAP: "false"
+  REACT_APP_LOKI_URL: "http://localhost:8080"
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loki-react-app
+  labels:
+    app: loki-react-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loki-react-app
+  template:
+    metadata:
+      labels:
+        app: loki-react-app
+    spec:
+      containers:
+        - name: react-app
+          image: visvakula/perses-app:latest
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: loki-proxy-config
+        - name: loki-proxy
+          image: visvakula/loki-proxy:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: loki-proxy-config
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: loki-react-service
+spec:
+  selector:
+    app: loki-react-app
+  ports:
+    - name: react
+      protocol: TCP
+      port: 80
+      targetPort: 80
+    - name: loki-proxy
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
